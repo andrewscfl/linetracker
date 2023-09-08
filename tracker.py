@@ -218,7 +218,7 @@ HISTORY ANALYSIS
 ---------------------------------
 lines difference: {history_analysis['lines_dif']}
 total lines changed: {history_total_changed}
-percentage of codebase affected: {round(history_total_changed / current_entry['total'] * 100, 2) if history_total_changed != 0 and current_entry['title'] != 0 else '0' }%
+percentage of codebase affected: {round(history_total_changed / current_entry['total'] * 100, 2) if history_total_changed != 0 and current_entry['total'] != 0 else '0' }%
 files difference: {history_file_data if history_file_data != "" else "No files changed"}
 =================================
                               
