@@ -27,6 +27,9 @@ class ArgFactory:
         for idx, item in enumerate(args):
             if item in arg_dict:
                 type = arg_dict[item]
+                if len(args) < idx + 2:
+                    print(f'No {type} specified')
+                    sys.exit()
                 switch_content = args[idx + 1]
                 setattr(self, type, switch_content)
             if item in present_arg_dict:
