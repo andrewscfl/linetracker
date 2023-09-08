@@ -60,7 +60,8 @@ class FileAnalyzer:
 class HistoryAnalyzer:
     def __init__(self, current_scan, history):
         self.current_scan = current_scan
-        self.full_history = [*history, self.current_scan]
+        # get full history of scans for this path
+        self.full_history = [*[item for item in history if current_scan['search_path'] == item['search_path']], self.current_scan]
         self.history = self.get_latest_scan()
 
 
