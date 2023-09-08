@@ -186,11 +186,10 @@ options:
  
     history_analyzer = HistoryAnalyzer(current_entry, existing_data)
     history_analysis = history_analyzer.get_history_analysis()
-    history_total_changed = 0
+
     
     for item in history_analysis['files_dif']:
         history_file_data += f'{item["path"]} | {item["lines_dif"]} lines\n'
-        history_total_changed += item['lines_dif']
 
     
     existing_data.append(current_entry)
@@ -218,8 +217,7 @@ log file exported to {home}/.linecounter
 =================================
 HISTORY ANALYSIS
 ---------------------------------
-lines difference: {history_analysis['lines_dif']}
-total lines changed: {history_total_changed}
+lines changed: {history_analysis['lines_dif']}
 percentage of codebase affected: {round(history_total_changed / current_entry['total'] * 100, 2) if history_total_changed != 0 and current_entry['total'] != 0 else '0' }%
 files difference: {history_file_data if history_file_data != "" else "No files changed"}
 =================================
