@@ -148,7 +148,6 @@ options:
         ignore_paths = arg_factory.ignore_folder.split(',')
         ignore_paths = [x.strip() for x in ignore_paths]
 
-    print(ignore_paths)
 
    # loop through filesystem starting at path
     for root, dirs, files in os.walk(arg_factory.path):
