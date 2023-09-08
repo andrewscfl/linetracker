@@ -20,7 +20,8 @@ class ArgFactory:
 
         present_arg_dict = {
             '-iw': 'ignore_whitespace',
-            '-q': 'quiet'
+            '-q': 'quiet',
+            '-help': 'help'
         }
 
         for idx, item in enumerate(args):
@@ -98,8 +99,27 @@ class HistoryAnalyzer:
 
 def main():
     time_start = time.time()
-
     arg_factory = ArgFactory()
+
+    if hasattr(arg_factory, 'help'):
+        print("""
+=================================
+LINE TRACKER
+a small utility for tracking lines of code in a codebase and their changes
+
+options: 
+-p: path to scan
+-o: output file
+-ie: ignore extension
+-if: ignore folder
+-iw: ignore whitespace
+-q: quiet
+-h: help
+              
+=================================
+
+""")
+        return
 
     home = str(Path.home())
 
@@ -198,7 +218,7 @@ HISTORY ANALYSIS
 ---------------------------------
 lines difference: {history_analysis['lines_dif']}
 total lines changed: {history_total_changed}
-percentage of codebase affected: {round(history_total_changed / current_entry['total'] * 100, 2)}%
+percentage of codebase affected: {round(history_total_changed / current_entry['total'] * 100, 2) if history_total_changed != 0 and current_entry['title'] != 0 else '0' }%
 files difference: {history_file_data if history_file_data != "" else "No files changed"}
 =================================
                               
