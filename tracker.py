@@ -12,11 +12,15 @@ class ArgFactory:
 
     def extract_args(self,args):
         arg_dict = {
-            '-if': 'ignore_folder',
-            '-ie': 'ignore_extension',
-            '-iw': 'ignore_whitespace',
             '-p': 'path',
             '-o': 'output',
+            '-ie': 'ignore_extension',
+            '-if': 'ignore_folder',
+        }
+
+        present_arg_dict = {
+            '-iw': 'ignore_whitespace',
+            '-q': 'quiet'
         }
 
         for idx, item in enumerate(args):
@@ -24,6 +28,9 @@ class ArgFactory:
                 type = arg_dict[item]
                 switch_content = args[idx + 1]
                 setattr(self, type, switch_content)
+            if item in present_arg_dict:
+                type = present_arg_dict[item]
+                setattr(self, type, True)
 
     
 class FileAnalyzer:
@@ -69,10 +76,9 @@ class HistoryAnalyzer:
     
     def get_files_dif(self):
         if not self.history:
-            return self.current_scan['items']
+            return []
 
         stats = []
-
 
         for new_entry in self.current_scan['items']:
             for old_entry in self.history['items']:
@@ -113,20 +119,35 @@ def main():
     if not hasattr(arg_factory, 'path'):
        print('No path specified')
        return
+    
+    ignore_paths = []
+    if hasattr(arg_factory, 'ignore_folder'):
+        ignore_paths = arg_factory.ignore_folder.split(',')
+        ignore_paths = [x.strip() for x in ignore_paths]
+
+    print(ignore_paths)
 
    # loop through filesystem starting at path
     for root, dirs, files in os.walk(arg_factory.path):
+           # traverse files
            for name in files:
                 path = os.path.join(root, name)
-                if hasattr(arg_factory, 'ignore_folder') and arg_factory.ignore_folder in path:
-                    continue
+                # if path is in ignore list, skip
+                for ignore_path in ignore_paths:
+                    if ignore_path in path:
+                        continue
+                # if path has extension to ignore, skip
                 if hasattr(arg_factory, 'ignore_extension') and arg_factory.ignore_extension in path:
                     continue
 
+                
                 should_ignore_whitespace = hasattr(arg_factory, 'ignore_whitespace')
                 file_analyzer = FileAnalyzer(path, should_ignore_whitespace)
                 analysis = file_analyzer.run_analysis()
-                print(f'File: {analysis["path"]} | Lines: {analysis["lines"]}')
+
+                if not hasattr(arg_factory, 'quiet'):
+                    print(f'File: {analysis["path"]} | Lines: {analysis["lines"]}')
+
                 current_entry['total'] += analysis['lines']
 
                 current_entry['items'].append({
@@ -140,6 +161,7 @@ def main():
     history_analyzer = HistoryAnalyzer(current_entry, existing_data)
     history_analysis = history_analyzer.get_history_analysis()
     history_total_changed = 0
+    
     for item in history_analysis['files_dif']:
         history_file_data += f'{item["path"]} | {item["lines_dif"]} lines\n'
         history_total_changed += item['lines_dif']
@@ -174,7 +196,7 @@ HISTORY ANALYSIS
 lines difference: {history_analysis['lines_dif']}
 total lines changed: {history_total_changed}
 percentage of codebase affected: {round(history_total_changed / current_entry['total'] * 100, 2)}%
-files difference: {history_file_data}
+files difference: {history_file_data if history_file_data != "" else "No files changed"}
 =================================
                               
 """)
