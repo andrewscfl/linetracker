@@ -13,7 +13,6 @@ class ArgFactory:
     def extract_args(self,args):
         arg_dict = {
             '-p': 'path',
-            '-o': 'output',
             '-ie': 'ignore_extension',
             '-if': 'ignore_folder',
         }
@@ -112,7 +111,6 @@ a small utility for tracking lines of code in a codebase and their changes
 
 options: 
 -p: path to scan
--o: output file
 -ie: ignore extension
 -if: ignore folder
 -iw: ignore whitespace
