@@ -133,9 +133,13 @@ def main():
            for name in files:
                 path = os.path.join(root, name)
                 # if path is in ignore list, skip
+                found_path_match = False
                 for ignore_path in ignore_paths:
                     if ignore_path in path:
-                        continue
+                        found_path_match = True
+                        break
+                if found_path_match:
+                    continue
                 # if path has extension to ignore, skip
                 if hasattr(arg_factory, 'ignore_extension') and arg_factory.ignore_extension in path:
                     continue
@@ -192,7 +196,6 @@ log file exported to {home}/.linecounter
 =================================
 HISTORY ANALYSIS
 ---------------------------------
-
 lines difference: {history_analysis['lines_dif']}
 total lines changed: {history_total_changed}
 percentage of codebase affected: {round(history_total_changed / current_entry['total'] * 100, 2)}%
