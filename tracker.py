@@ -60,7 +60,7 @@ class FileAnalyzer:
 class HistoryAnalyzer:
     def __init__(self, current_scan, history):
         self.current_scan = current_scan
-        self.full_history = history
+        self.full_history = [*history, self.current_scan]
         self.history = self.get_latest_scan()
 
 
@@ -72,30 +72,41 @@ class HistoryAnalyzer:
             
 
     def get_lines_dif(self):
-
         if not self.history:
             return self.current_scan['total']
         return self.current_scan['total'] - self.history['total']
     
-    def get_files_dif(self):
-        if not self.history:
+
+    
+    def get_history_dif(self):
+        if not self.full_history:
             return []
 
-        stats = []
+        stats = {} 
 
-        for new_entry in self.current_scan['items']:
-            for old_entry in self.history['items']:
-                if new_entry['path'] == old_entry['path'] and (new_entry['lines'] - old_entry['lines']) > 0:
-                    stats.append({ 'path': new_entry['path'], 'lines_dif': new_entry['lines'] - old_entry['lines'] })
-                    break
+        for idx, _ in enumerate(self.full_history):
+            if idx == 0:
+                continue
+            last_entry = self.full_history[idx - 1]
+            curr_entry = self.full_history[idx]
+
+            for curr_item in curr_entry['items']:
+                for last_item in last_entry['items']:
+                    if curr_item['path'] == last_item['path'] and curr_item['lines'] != last_item['lines']:
+                        diff = curr_item['lines'] - last_item['lines']
+                        entry = { 'date': last_entry['date'], 'path': curr_item['path'], 'lines_dif': "✅ " + str(diff) + " lines added" if diff > 0 else "❌ " +  str(abs(diff)) + " lines removed"}
+                        if curr_item['path'] not in stats:
+                            stats[curr_item['path']] = [entry]
+                        else:
+                            stats[curr_item['path']].append(entry)
 
         return stats
-    
+
 
     def get_history_analysis(self):
         return {
             'lines_dif': self.get_lines_dif(),
-            'files_dif': self.get_files_dif()
+            'history_dif': self.get_history_dif()
         }
 
 
@@ -186,8 +197,10 @@ options:
     history_analysis = history_analyzer.get_history_analysis()
 
     
-    for item in history_analysis['files_dif']:
-        history_file_data += f'{item["path"]} | {item["lines_dif"]} lines\n'
+    for key,value in history_analysis['history_dif'].items():
+        history_file_data += f'{key}\n'
+        for item in value:
+            history_file_data += f'    {item["date"]} - {item["lines_dif"]}\n'
 
     
     existing_data.append(current_entry)
@@ -205,7 +218,7 @@ options:
 CURRENT SCAN
 ---------------------------------
 scan finished in {time_diff} seconds
-total lines: {current_entry['total']:,}
+total project lines: {current_entry['total']:,}
 log file exported to {home}/.linecounter
 =================================
         """)
@@ -215,9 +228,12 @@ log file exported to {home}/.linecounter
 =================================
 HISTORY ANALYSIS
 ---------------------------------
-lines changed: {history_analysis['lines_dif']:,}
+lines changed since last update: {history_analysis['lines_dif']:,}
 percentage of codebase affected since last scan: {round(history_analysis['lines_dif'] / current_entry['total'] * 100, 2) if history_analysis['lines_dif'] != 0 and current_entry['total'] != 0 else '0' }%
-files difference: {history_file_data if history_file_data != "" else "No files changed"}
+
+files history:
+---------------------------------
+{history_file_data if history_file_data != "" else "No files changed"}
 =================================
                               
 """)
