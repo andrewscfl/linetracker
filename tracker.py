@@ -229,7 +229,7 @@ log file exported to {home}/.linecounter
 HISTORY ANALYSIS
 ---------------------------------
 lines changed since last update: {history_analysis['lines_dif']:,}
-percentage of codebase affected since last scan: {round(history_analysis['lines_dif'] / current_entry['total'] * 100, 2) if history_analysis['lines_dif'] != 0 and current_entry['total'] != 0 else '0' }%
+percentage of codebase affected since last scan: {round(history_analysis['lines_dif'] / current_entry['total'] * 100, 5) if history_analysis['lines_dif'] != 0 and current_entry['total'] != 0 else '0' }%
 
 files history:
 ---------------------------------
