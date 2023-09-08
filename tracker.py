@@ -205,7 +205,7 @@ options:
 CURRENT SCAN
 ---------------------------------
 scan finished in {time_diff} seconds
-total lines: {current_entry['total']}
+total lines: {current_entry['total']:,}
 log file exported to {home}/.linecounter
 =================================
         """)
@@ -215,7 +215,7 @@ log file exported to {home}/.linecounter
 =================================
 HISTORY ANALYSIS
 ---------------------------------
-lines changed: {history_analysis['lines_dif']}
+lines changed: {history_analysis['lines_dif']:,}
 percentage of codebase affected since last scan: {round(history_analysis['lines_dif'] / current_entry['total'] * 100, 2) if history_analysis['lines_dif'] != 0 and current_entry['total'] != 0 else '0' }%
 files difference: {history_file_data if history_file_data != "" else "No files changed"}
 =================================
